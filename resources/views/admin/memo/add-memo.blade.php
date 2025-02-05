@@ -52,23 +52,6 @@
                         <label for="nomor_surat" class="form-label">Nomor Surat</label>
                         <input type="text" name="nomor_surat" id="nomor_surat" class="form-control" placeholder="Masukkan Nomor Surat" required>
                     </div>
-                    <!-- <div class="col-md-6 dropdown">
-                        <label for="dropdownMenuButton">Divisi Pembuat</label>
-                        <div class="separator"></div>
-                        <select class="btn btn-dropdown dropdown-toggle d-flex justify-content-between align-items-center w-100" id="dropdownMenuButton">
-                            <option disabled selected style="text-align: left;">--Pilih--</option>
-                            <option value="hr_ga">HR & GA</option>
-                            <option value="keuangan">Keuangan</option>
-                            <option value="logistik_gudang">Logistik & Gudang</option>
-                            <option value="pemasaran">Pemasaran</option>
-                            <option value="sekretaris_perusahaan">Sekretaris Perusahaan</option>
-                            <option value="mrh">MRH</option>
-                            <option value="teknologi">Teknologi</option>
-                            <option value="quality_control">Quality Control</option>
-                            <option value="qm_she">QM & SHE (OT dan K3)</option>
-                            <option value="ppc">PPC</option>
-                        </select>                      
-                    </div> -->
                     <div class="col-md-6" >
                         <label for="perihal" class="form-label">Perihal</label>
                         <input type="text" name="perihal" id="perihal" class="form-control" placeholder="Masukkan Perihal / Judul Surat" required>
@@ -115,26 +98,28 @@
                 <div class="col">
                     <div class="cek d-flex" style="font-size: 14px;">
                         <div class="radio">
-                            <input type="radio" name="keperluan" value="ya" onclick="toggleFields(true)">
-                            <label for="ya">Ya</label>
+                            <label>
+                                <input type="radio" name="opsi" id="ya" value="ya" onclick="toggleKategoriBarang()" style="margin-right: 15px;"> Ya
+                            </label>
                         </div>
                         <div class="radio">
-                            <input type="radio" name="keperluan" value="tidak" onclick="toggleFields(false)">
-                            <label for="tidak">Tidak</label>
+                            <label>
+                                <input type="radio" name="opsi" id="tidak" value="tidak" onclick="toggleKategoriBarang()" style="margin-right: 15px;" checked> Tidak
+                            </label>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="additionalFields" class="card-body2" style="display: none;">
+            <div id="jumlahKategoriDiv" class="card-body2" style="display: none;">
                 <div class="row mb-3">
                     <div class="colom">
-                        <label for="jumlah_kolom" class="form-label">Jumlah Kategori Barang</label>
-                        <input type="number" id="jumlah_kolom" name="jumlah_kolom" class="form-control" placeholder="Masukkan jumlah kategori barang yang ingin diinput" min="1" onchange="updateFields()">
+                        <label for="jumlahKategori" class="form-label">Jumlah Kategori Barang</label>
+                        <input type="number" id="jumlahKategori" name="jumlah_kolom" class="form-control" placeholder="Masukkan jumlah kategori barang yang ingin diinput" min="1" oninput="generateBarangFields()">
                     </div>
                 </div>
             </div>
-            <div id="dynamicFields"></div>
+            <div id="barangTable"></div>
 
             <div class="card-footer">
                 <button type="button" class="btn btn-cancel"><a href="{{route ('admin.memo.memo-admin')}}">Batal</a></button>
@@ -226,105 +211,60 @@
             }
         }
 
-        // Fungsi untuk menampilkan dan menyembunyikan fields tambahan
-        function toggleFields(show) {
-            const fields = document.getElementById('additionalFields');
-            if (show) {
-                fields.style.display = 'block'; // Menampilkan fields tambahan
+        function toggleKategoriBarang() {
+            var yaRadio = document.getElementById("ya");
+            var jumlahKategoriDiv = document.getElementById("jumlahKategoriDiv");
+            var jumlahKategoriInput = document.getElementById("jumlahKategori");
+            var barangTable = document.getElementById("barangTable");
+            
+            if (yaRadio.checked) {
+                jumlahKategoriDiv.style.display = "block";
             } else {
-                fields.style.display = 'none'; // Menyembunyikan fields tambahan
+                jumlahKategoriDiv.style.display = "none";
+                jumlahKategoriInput.value = "";
+                barangTable.innerHTML = "";
             }
         }
+        
+        function generateBarangFields() {
+            const jumlahKategori = document.getElementById("jumlahKategori").value;
+            const barangTable = document.getElementById("barangTable");
+            barangTable.innerHTML = ""; // Hapus isi sebelumnya
+            
+            if (jumlahKategori > 0) {
+                for (let i = 0; i < jumlahKategori; i++) {
+                    // Buat row baru untuk setiap kolom
+                    const row = document.createElement('div');
+                    row.classList.add('row', 'mb-3');
+                    row.style.display = 'flex';
+                    row.style.gap = '10px';
+                    row.style.margin = '10px 47px';
 
-        // Fungsi untuk memperbarui dan menampilkan fields berdasarkan jumlah kolom yang dimasukkan
-        function updateFields() {
-            const jumlahKolom = document.getElementById('jumlah_kolom').value;
-            const dynamicFieldsContainer = document.getElementById('dynamicFields');
-            dynamicFieldsContainer.innerHTML = ''; // Kosongkan container sebelum menambahkan field baru
+                    // Template untuk input field
+                    row.innerHTML = `
+                        <div class="col-md-6">
+                            <label for="nomor_${i}">Nomor</label>
+                            <input type="text" id="nomor_${i}" name="nomor[]" class="form-control" placeholder="Masukkan nomor">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="barang_${i}">Barang</label>
+                            <input type="text" id="barang_${i}" name="barang[]" class="form-control" placeholder="Masukkan barang">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="qty_${i}">Qty</label>
+                            <input type="number" id="qty_${i}" name="qty[]" class="form-control" placeholder="Masukkan jumlah">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="satuan_${i}">Satuan</label>
+                            <input type="text" id="satuan_${i}" name="satuan[]" class="form-control" placeholder="Masukkan satuan">
+                        </div>
+                    `;
 
-            for (let i = 0; i < jumlahKolom; i++) {
-                // Buat row baru untuk setiap kolom
-                const row = document.createElement('div');
-                row.classList.add('row', 'mb-3');
-                row.style.display = 'flex';
-                row.style.gap = '2px';
-                row.style.marginLeft = '47px';
-                row.style.marginRight = '47px';
-                row.style.marginTop = '10px';
-                
-                // Buat kolom untuk Nomor
-                const colNomor = document.createElement('div');
-                colNomor.classList.add('col-md-6');
-                const labelNomor = document.createElement('label');
-                labelNomor.setAttribute('for', 'nomor_' + i);
-                labelNomor.textContent = 'Nomor';
-                const inputNomor = document.createElement('input');
-                inputNomor.setAttribute('type', 'text');
-                inputNomor.setAttribute('id', 'nomor_' + i);
-                inputNomor.setAttribute('name', 'nomor_' + i);
-                inputNomor.classList.add('form-control');
-                inputNomor.setAttribute('placeholder', 'Masukkan nomor');
-                colNomor.appendChild(labelNomor);
-                colNomor.appendChild(inputNomor);
-
-                // Buat kolom untuk Barang
-                const colBarang = document.createElement('div');
-                colBarang.classList.add('col-md-6');
-                const labelBarang = document.createElement('label');
-                labelBarang.setAttribute('for', 'barang_' + i);
-                labelBarang.textContent = 'Barang';
-                const inputBarang = document.createElement('input');
-                inputBarang.setAttribute('type', 'text');
-                inputBarang.setAttribute('id', 'barang_' + i);
-                inputBarang.setAttribute('name', 'barang_' + i);
-                inputBarang.classList.add('form-control');
-                inputBarang.setAttribute('placeholder', 'Masukkan barang');
-                colBarang.appendChild(labelBarang);
-                colBarang.appendChild(inputBarang);
-
-                // Tambahkan kolom Nomor dan Barang ke dalam row
-                row.appendChild(colNomor);
-                row.appendChild(colBarang);
-
-                // Buat kolom untuk Qty
-                const colQty = document.createElement('div');
-                colQty.classList.add('col-md-6');
-                const labelQty = document.createElement('label');
-                labelQty.setAttribute('for', 'qty_' + i);
-                labelQty.textContent = 'Qty';
-                const inputQty = document.createElement('input');
-                inputQty.setAttribute('type', 'number');
-                inputQty.setAttribute('id', 'qty_' + i);
-                inputQty.setAttribute('name', 'qty_' + i);
-                inputQty.classList.add('form-control');
-                inputQty.setAttribute('placeholder', 'Masukkan jumlah');
-                colQty.appendChild(labelQty);
-                colQty.appendChild(inputQty);
-
-                // Buat kolom untuk Satuan
-                const colSatuan = document.createElement('div');
-                colSatuan.classList.add('col-md-6');
-                const labelSatuan = document.createElement('label');
-                labelSatuan.setAttribute('for', 'satuan_' + i);
-                labelSatuan.textContent = 'Satuan';
-                const inputSatuan = document.createElement('input');
-                inputSatuan.setAttribute('type', 'text');
-                inputSatuan.setAttribute('id', 'satuan_' + i);
-                inputSatuan.setAttribute('name', 'satuan_' + i);
-                inputSatuan.classList.add('form-control');
-                inputSatuan.setAttribute('placeholder', 'Masukkan satuan');
-                colSatuan.appendChild(labelSatuan);
-                colSatuan.appendChild(inputSatuan);
-
-                // Tambahkan kolom Qty dan Satuan ke dalam row
-                row.appendChild(colQty);
-                row.appendChild(colSatuan);
-
-                // Tambahkan row ke dalam container dynamicFields
-                dynamicFieldsContainer.appendChild(row);
+                    // Tambahkan row ke dalam barangTable
+                    barangTable.appendChild(row);
+                }
             }
         }
-
     </script>
 
     <!-- Bootstrap JS and Popper.js -->

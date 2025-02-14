@@ -75,14 +75,17 @@
                                 <img src="/img/user-manage/me1.jpg" alt="User Image" class="rounded-circle">
                                 <div class="text-info">
                                     <span>{{ $user->firstname }} {{ $user->lastname }}</span>
-                                    <br><small>{{ $user->email }}</small>
+                                    <!-- <br><small>{{ $user->email }}</small> -->
                                 </div>
                             </div>
                         </td>
                         <td>
                             <span class="badge bg-primary">
-                             {{ $user->role->nm_role ?? 'No Role Assigned' }} <!-- Menampilkan nama role -->
+                             {{ $user->role->nm_role ?? 'No Role Assigned' }} 
                             </span>
+                            <!-- <span class="badge {{ $user->role->nm_role == 'Superadmin' ? 'role-superadmin' : ($user->role->nm_role == 'Admin' ? 'role-admin' : 'role-manager') }}">
+                                {{ $user->role->nm_role ?? 'No Role Assigned' }}
+                            </span> -->
                         </td>
                         <td>
                             {{ $user->divisi->nm_divisi ?? 'No Divisi Assigned' }} <!-- Menampilkan nama divisi -->
@@ -93,11 +96,11 @@
                         <td>{{ $user->phone_number }}</td>
                             <td>
                             <form method="POST" action="{{ route('user-manage.edit', $user->id) }}" style="display: inline;">
-                            @csrf
-                            @method('GET') <!-- Use GET to navigate to the edit page -->
-                            <button type="submit" class="btn btn-edit btn-sm">
-                                <img src="/img/user-manage/Edit.png" alt="edit">
-                            </button>
+                                @csrf
+                                @method('GET') <!-- Use GET to navigate to the edit page -->
+                                <button type="submit" class="btn btn-edit btn-sm">
+                                    <img src="/img/user-manage/Edit.png" alt="edit">
+                                </button>
                             </form>
                             <form method="POST" action="{{ route('user-manage.destroy', $user->id) }}" style="display: inline;">
                             @csrf
@@ -194,7 +197,7 @@
                             @foreach ($roles as $role)
                                 <label for="role_{{ $role->id_role }}">{{ $role->nm_role }}</label>
                                 <input type="radio" name="role_id_role" value="{{ $role->id_role }}" id="role_{{ $role->id_role }}" required autofocus autocomplete="role_id_role">
-                             @endforeach
+                            @endforeach
                             </div>
                         </div>
                     </div>
